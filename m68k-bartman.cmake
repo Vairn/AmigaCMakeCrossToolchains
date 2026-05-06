@@ -27,6 +27,14 @@ set(M68K_CPU_TYPES "68000" "68010" "68020" "68040" "68060" "68080")
 set(M68K_CPU "68000" CACHE STRING "Target CPU model")
 set_property(CACHE M68K_CPU PROPERTY STRINGS ${M68K_CPU_TYPES})
 
+# GCC assumes that 020 comes paired with an FPU and might generate fmovemx
+# even if fpu is unused (e.g. in ACE interrupts) - prevent it
+if(NOT M68K_CPU STREQUAL "68040" AND NOT M68K_CPU STREQUAL "68060" AND NOT M68K_CPU STREQUAL "68080")
+	set(FPU_FLAGS -msoft-float)
+else()
+	set(FPU_FLAGS -mhard-float)
+endif()
+
 # Extra flags
 set(TOOLCHAIN_CFLAGS "${M68K_CFLAGS}" CACHE STRING "CFLAGS")
 set(TOOLCHAIN_CXXFLAGS "${M68K_CXXFLAGS}" CACHE STRING "CXXFLAGS")
@@ -68,7 +76,7 @@ if(WIN32)
 endif()
 
 # Compiler flags
-set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
+set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${FPU_FLAGS} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
 set(CMAKE_C_FLAGS_INIT "${FLAGS_COMMON} ${TOOLCHAIN_CFLAGS}")
 set(CMAKE_CXX_FLAGS_INIT "${FLAGS_COMMON} -fno-exceptions ${TOOLCHAIN_CXXFLAGS}")
 set(CMAKE_ASM_FLAGS_INIT "-Wa,-g,--register-prefix-optional -m${M68K_CPU}")
