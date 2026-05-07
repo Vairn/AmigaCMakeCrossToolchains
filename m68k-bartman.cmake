@@ -26,6 +26,12 @@ add_compile_definitions(BARTMAN_GCC)
 set(M68K_CPU_TYPES "68000" "68010" "68020" "68040" "68060" "68080")
 set(M68K_CPU "68000" CACHE STRING "Target CPU model")
 set_property(CACHE M68K_CPU PROPERTY STRINGS ${M68K_CPU_TYPES})
+option(M68K_HARD_FLOAT "Enable hardware floating point code generation (requires FPU)" OFF)
+if(M68K_HARD_FLOAT)
+	set(M68K_FLOAT_FLAGS "-mhard-float")
+else()
+	set(M68K_FLOAT_FLAGS "-msoft-float")
+endif()
 
 # Extra flags
 set(TOOLCHAIN_CFLAGS "${M68K_CFLAGS}" CACHE STRING "CFLAGS")
@@ -68,7 +74,7 @@ if(WIN32)
 endif()
 
 # Compiler flags
-set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
+set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${M68K_FLOAT_FLAGS} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
 set(CMAKE_C_FLAGS_INIT "${FLAGS_COMMON} ${TOOLCHAIN_CFLAGS}")
 set(CMAKE_CXX_FLAGS_INIT "${FLAGS_COMMON} -fno-exceptions ${TOOLCHAIN_CXXFLAGS}")
 set(CMAKE_ASM_FLAGS_INIT "-Wa,-g,--register-prefix-optional")
