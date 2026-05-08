@@ -35,6 +35,19 @@ else()
 	set(FPU_FLAGS -mhard-float)
 endif()
 
+# Sibling-call ("tail call") optimization: Release adds -foptimize-sibling-calls
+# below. For 68020+ that breaks valid code (bad prologues/epilogues or call
+# patterns vs. -m68020, AmigaOS ABI, and typical bare-metal/interrupt glue).
+# Force -fno-optimize-sibling-calls for non-68000 and skip the Release -fopt
+# so it cannot override.
+if(M68K_CPU STREQUAL "68000")
+	set(M68K_NO_SIBLING_CALLS "")
+	set(M68K_RELEASE_SIBLING_CALL_OPT -foptimize-sibling-calls)
+else()
+	set(M68K_NO_SIBLING_CALLS -fno-optimize-sibling-calls)
+	set(M68K_RELEASE_SIBLING_CALL_OPT "")
+endif()
+
 # Extra flags
 set(TOOLCHAIN_CFLAGS "${M68K_CFLAGS}" CACHE STRING "CFLAGS")
 set(TOOLCHAIN_CXXFLAGS "${M68K_CXXFLAGS}" CACHE STRING "CXXFLAGS")
@@ -76,7 +89,7 @@ if(WIN32)
 endif()
 
 # Compiler flags
-set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${FPU_FLAGS} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
+set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${FPU_FLAGS} ${M68K_NO_SIBLING_CALLS} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
 set(CMAKE_C_FLAGS_INIT "${FLAGS_COMMON} ${TOOLCHAIN_CFLAGS}")
 set(CMAKE_CXX_FLAGS_INIT "${FLAGS_COMMON} -fno-exceptions ${TOOLCHAIN_CXXFLAGS}")
 set(CMAKE_ASM_FLAGS_INIT "-Wa,-g,--register-prefix-optional -m${M68K_CPU}")
@@ -93,7 +106,7 @@ endforeach()
 # Ignore CMake's own calls later after toolchain has been processed
 macro(__compiler_gnu lang)
 endmacro()
-set(CMAKE_C_FLAGS_RELEASE_INIT "-O1 -DNDEBUG ${FLAGS_COMMON} -falign-functions -falign-jumps -falign-labels -falign-loops -fcaller-saves -fcode-hoisting -fcse-follow-jumps -fcse-skip-blocks -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively -fexpensive-optimizations -ffinite-loops -fgcse -fgcse-lm -finline-functions -finline-small-functions -findirect-inlining -fipa-bit-cp -fipa-cp -fipa-icf -fipa-ra -fipa-sra -fipa-vrp -fisolate-erroneous-paths-dereference -flra-remat -foptimize-sibling-calls -fpartial-inlining -fpeephole2 -freorder-functions -frerun-cse-after-loop -fstore-merging -fstrict-aliasing -fthread-jumps -ftree-pre -ftree-switch-conversion -ftree-vrp -fgcse-after-reload -floop-unroll-and-jam -fpeel-loops -fpredictive-commoning -fsplit-loops -fsplit-paths -fallow-store-data-races")
+set(CMAKE_C_FLAGS_RELEASE_INIT "-O1 -DNDEBUG ${FLAGS_COMMON} -falign-functions -falign-jumps -falign-labels -falign-loops -fcaller-saves -fcode-hoisting -fcse-follow-jumps -fcse-skip-blocks -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively -fexpensive-optimizations -ffinite-loops -fgcse -fgcse-lm -finline-functions -finline-small-functions -findirect-inlining -fipa-bit-cp -fipa-cp -fipa-icf -fipa-ra -fipa-sra -fipa-vrp -fisolate-erroneous-paths-dereference -flra-remat ${M68K_RELEASE_SIBLING_CALL_OPT} -fpartial-inlining -fpeephole2 -freorder-functions -frerun-cse-after-loop -fstore-merging -fstrict-aliasing -fthread-jumps -ftree-pre -ftree-switch-conversion -ftree-vrp -fgcse-after-reload -floop-unroll-and-jam -fpeel-loops -fpredictive-commoning -fsplit-loops -fsplit-paths -fallow-store-data-races")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO_INIT "-g ${CMAKE_C_FLAGS_RELEASE_INIT}")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "${CMAKE_C_FLAGS_RELEASE_INIT} -fno-exceptions")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT "${CMAKE_C_FLAGS_RELWITHDEBINFO_INIT} -fno-exceptions")
