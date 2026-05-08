@@ -77,10 +77,10 @@ endif()
 
 # Compiler flags
 set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${FPU_FLAGS} -fomit-frame-pointer -nostdlib -Wno-unused-function -Wno-volatile-register-var -fno-tree-loop-distribution -flto -fwhole-program -fdata-sections -ffunction-sections")
-# Sibling-call: 020+ appends -fno to FLAGS_COMMON; 68000 uses M68K_SIBLING_CALL_OPT as Release-only suffix
+# Sibling-call: 020+ appends -fno to FLAGS_COMMON; 68000/010 uses M68K_SIBLING_CALL_OPT as Release-only suffix
 # (" -foptimize-sibling-calls" or empty).
 set(M68K_SIBLING_CALL_OPT "")
-if(M68K_CPU STREQUAL "68000")
+if(M68K_CPU STREQUAL "68000" OR M68K_CPU STREQUAL "68010")
 	set(M68K_SIBLING_CALL_OPT "-foptimize-sibling-calls")
 else()
 	string(APPEND FLAGS_COMMON " -fno-optimize-sibling-calls")
