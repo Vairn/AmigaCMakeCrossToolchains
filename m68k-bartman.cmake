@@ -81,7 +81,7 @@ set(FLAGS_COMMON "${TOOLCHAIN_COMMON} -MP -MMD -m${M68K_CPU} ${FPU_FLAGS} -fomit
 # (" -foptimize-sibling-calls" or empty).
 set(M68K_SIBLING_CALL_OPT "")
 if(M68K_CPU STREQUAL "68000")
-	set(M68K_SIBLING_CALL_OPT " -foptimize-sibling-calls")
+	set(M68K_SIBLING_CALL_OPT "-foptimize-sibling-calls")
 else()
 	string(APPEND FLAGS_COMMON " -fno-optimize-sibling-calls")
 endif()
@@ -101,7 +101,7 @@ endforeach()
 # Ignore CMake's own calls later after toolchain has been processed
 macro(__compiler_gnu lang)
 endmacro()
-set(CMAKE_C_FLAGS_RELEASE_INIT "-O1 -DNDEBUG ${FLAGS_COMMON} -falign-functions -falign-jumps -falign-labels -falign-loops -fcaller-saves -fcode-hoisting -fcse-follow-jumps -fcse-skip-blocks -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively -fexpensive-optimizations -ffinite-loops -fgcse -fgcse-lm -finline-functions -finline-small-functions -findirect-inlining -fipa-bit-cp -fipa-cp -fipa-icf -fipa-ra -fipa-sra -fipa-vrp -fisolate-erroneous-paths-dereference -flra-remat${M68K_SIBLING_CALL_OPT} -fpartial-inlining -fpeephole2 -freorder-functions -frerun-cse-after-loop -fstore-merging -fstrict-aliasing -fthread-jumps -ftree-pre -ftree-switch-conversion -ftree-vrp -fgcse-after-reload -floop-unroll-and-jam -fpeel-loops -fpredictive-commoning -fsplit-loops -fsplit-paths -fallow-store-data-races")
+set(CMAKE_C_FLAGS_RELEASE_INIT "-O1 -DNDEBUG ${FLAGS_COMMON} -falign-functions -falign-jumps -falign-labels -falign-loops -fcaller-saves -fcode-hoisting -fcse-follow-jumps -fcse-skip-blocks -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively -fexpensive-optimizations -ffinite-loops -fgcse -fgcse-lm -finline-functions -finline-small-functions -findirect-inlining -fipa-bit-cp -fipa-cp -fipa-icf -fipa-ra -fipa-sra -fipa-vrp -fisolate-erroneous-paths-dereference -flra-remat ${M68K_SIBLING_CALL_OPT} -fpartial-inlining -fpeephole2 -freorder-functions -frerun-cse-after-loop -fstore-merging -fstrict-aliasing -fthread-jumps -ftree-pre -ftree-switch-conversion -ftree-vrp -fgcse-after-reload -floop-unroll-and-jam -fpeel-loops -fpredictive-commoning -fsplit-loops -fsplit-paths -fallow-store-data-races")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO_INIT "-g ${CMAKE_C_FLAGS_RELEASE_INIT}")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "${CMAKE_C_FLAGS_RELEASE_INIT} -fno-exceptions")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT "${CMAKE_C_FLAGS_RELWITHDEBINFO_INIT} -fno-exceptions")
